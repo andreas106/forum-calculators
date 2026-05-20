@@ -1,4 +1,4 @@
-# Calculators — handoff bundle for Anna
+# Calculators — handoff bundle
 
 Self-contained calculator components for integration into Paradise Media XenForo sites (LBP, rFactorCentral, etc.). Each calc is a paired `<name>.html` + `<name>.js`. Drop them into any XenForo Page node or static directory — no build step, no framework.
 
