@@ -1,0 +1,116 @@
+CALCULATORS — handoff bundle for Anna (LBP + rFactorCentral)
+================================================================
+
+OVERVIEW
+--------
+Self-contained calculator components, vanilla HTML + JS, structured for direct
+copy-paste into XenForo Page node templates. Each calc lives in its own folder
+and ships with an SEO-weight explainer block inside the embed payload.
+
+Scope decided 2026-05-20: build all 24 fast calcs from the SBR + Wizard of Odds
+catalog (see `Discussions - Research/lbp-calculators-catalog.md`), then hand off
+to Anna for server-side integration.
+
+PROGRESS (8 of 24)
+------------------
+DAY 1 — 2026-05-20:
+  [x] odds-converter
+  [x] bet
+  [x] parlay
+  [x] sports-futures
+  [x] streak
+  [x] french-roulette
+  [x] baccarat
+  [x] casino-bonus-playthrough
+
+NEXT (Day 2 — 2026-05-21, target):
+  [ ] poisson         (#9 — Poisson PMF for goals / props)
+  [ ] kelly           (#10 — optimal bankroll-fraction sizing)
+  [ ] risk-of-ruin-eternal  (#11)
+  [ ] risk-of-ruin-session  (#12)
+  [ ] freeplay        (#13 — free-play bonus EV)
+  — End of Batch 2 (~6 hours).
+
+BATCH 3 (sport-specific tables, ~9h):
+  [ ] half-point
+  [ ] spread-ml
+  [ ] round-robin
+  [ ] reverse-bets
+  [ ] arbitrage
+
+BATCH 4 (lottery / combinatorics, ~6h):
+  [ ] powerball
+  [ ] mega-millions-2025
+  [ ] mega-millions-2017
+  [ ] superlotto-plus
+  [ ] pick-six
+  [ ] lottery-jackpot-ticket-sales
+
+STANDING RULES (saved as memory feedback files)
+-----------------------------------------------
+1. Every calc MUST include an SEO explainer block inside BEGIN/END markers:
+   intro / worked examples / key concept callout / format reference.
+   See `feedback_calc_explainer_section.md`.
+
+2. NO currency picker. Display bare unit-less monetary values (`250.00`).
+   Label-only currency picker was tried 2026-05-20 and removed because it
+   was misleading without actual FX conversion. See `feedback_calc_no_currency.md`.
+
+3. Worked-examples tables MUST be computed via the calc's actual code
+   (node -e or live UI), not hand math with rounded intermediates. Caught
+   a 2× error in Parlay 10-leg + 4/6 wrong rows in Streak before shipping.
+   See `feedback_calc_table_values.md`.
+
+4. When drafting handoff messages to Anna — frame the explainer as
+   "turns the calc from a tool into an SEO asset" (verbatim phrase).
+   Do NOT mention currency picker (was removed).
+
+FILE LAYOUT
+-----------
+calculators/
+├── README.md
+├── package.json (type: module + npm test)
+├── odds-math.js               (shared lib — 7 odds formats + payout helpers)
+├── tests/odds-math.test.js    (13 tests, all passing)
+├── odds-converter/
+├── bet/
+├── parlay/
+├── sports-futures/
+├── streak/
+├── french-roulette/
+├── baccarat/
+├── casino-bonus-playthrough/
+└── <future calc>/             (one folder per calc as they ship)
+
+Each folder contains `<name>.html` + `<name>.js`. JS imports `../odds-math.js`
+when needed (most do; french-roulette, baccarat, and casino-bonus-playthrough
+are self-contained).
+
+LOCAL DEV
+---------
+Server is started via `python3 -m http.server 8765 --directory ./calculators`.
+URLs:
+  http://localhost:8765/odds-converter/odds-converter.html
+  http://localhost:8765/bet/bet.html
+  http://localhost:8765/parlay/parlay.html
+  http://localhost:8765/sports-futures/sports-futures.html
+  http://localhost:8765/streak/streak.html
+  http://localhost:8765/french-roulette/french-roulette.html
+  http://localhost:8765/baccarat/baccarat.html
+  http://localhost:8765/casino-bonus-playthrough/casino-bonus-playthrough.html
+
+ES module imports require HTTP (not file://) — browsers block `import` from
+file URLs. Always test via the localhost server.
+
+HANDOFF MODEL (NOT SHIPPED YET)
+-------------------------------
+Plan: ship Batch 1 + Batch 2 (13 calcs total) as the first handoff to Anna.
+She integrates as XenForo Page nodes — copies the BEGIN/END payload into the
+template, uploads `odds-math.js` + the per-calc JS, updates `<script src>` to
+the hosted path. No deploy from Andreas's side.
+
+Open question for Anna at handoff: preferred path layout for hosted JS files
+(e.g. `/js/calculators/odds-math.js` vs `/data/static/calc/...`) — affects
+the `<script src>` paths in the BEGIN/END blocks.
+
+Last updated: 2026-05-20 (Day 1 of build)

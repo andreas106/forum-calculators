@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>French Roulette Calculator</title>
+  <style>
+    body { margin: 0; padding: 24px 16px; background: #0f1115; }
+  </style>
+</head>
+<body>
+
+<!--
+  ============================================================================
+  BEGIN CALC BODY — copy everything between this marker and END CALC BODY
+  into a XenForo Page node template. Host french-roulette.js separately and
+  update the <script src> path to wherever you upload it. This calc has no
+  external math dependency, so odds-math.js is not required here.
+
+  All styles are scoped under .pm-calc-french-roulette so they will not bleed
+  into the surrounding XenForo theme.
+  ============================================================================
+-->
+<style>
+  .pm-calc-french-roulette {
+    --pm-bg: #0f1115;
+    --pm-card: #181b22;
+    --pm-border: #2a2f3a;
+    --pm-text: #e6e8ec;
+    --pm-muted: #8a93a6;
+    --pm-accent: #4f8cff;
+    --pm-error: #ff6b6b;
+    --pm-success: #4caf78;
+    --pm-warn: #f4b860;
+
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px;
+    background: var(--pm-card);
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+  }
+  .pm-calc-french-roulette *,
+  .pm-calc-french-roulette *::before,
+  .pm-calc-french-roulette *::after { box-sizing: border-box; }
+  .pm-calc-french-roulette h2 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    color: var(--pm-text);
+  }
+  .pm-calc-french-roulette .pm-subtitle {
+    margin: 0 0 20px 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-french-roulette .pm-grid {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+  }
+  .pm-calc-french-roulette label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-french-roulette input,
+  .pm-calc-french-roulette select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+  }
+  .pm-calc-french-roulette input:focus,
+  .pm-calc-french-roulette select:focus {
+    outline: none;
+    border-color: var(--pm-accent);
+  }
+  .pm-calc-french-roulette .pm-rule-note {
+    grid-column: 2;
+    margin-top: -2px;
+    color: var(--pm-muted);
+    font-size: 12px;
+    font-style: italic;
+  }
+  .pm-calc-french-roulette .pm-results {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+  }
+  .pm-calc-french-roulette .pm-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-french-roulette .pm-result-row:last-child { border-bottom: 0; }
+  .pm-calc-french-roulette .pm-result-label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-french-roulette .pm-result-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-french-roulette .pm-result-value.pm-edge {
+    color: var(--pm-warn);
+    font-weight: 600;
+  }
+  .pm-calc-french-roulette .pm-result-value.pm-loss {
+    color: var(--pm-error);
+    font-weight: 600;
+  }
+  .pm-calc-french-roulette .pm-error {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--pm-error);
+    border-radius: 8px;
+    color: var(--pm-error);
+    font-size: 13px;
+    display: none;
+  }
+  .pm-calc-french-roulette .pm-error.pm-visible { display: block; }
+  .pm-calc-french-roulette .pm-footer {
+    margin: 16px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Explainer section — SEO body copy that travels with the embed */
+  .pm-calc-french-roulette .pm-explainer {
+    max-width: 560px;
+    margin: 28px auto 0 auto;
+    padding: 0 4px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .pm-calc-french-roulette .pm-explainer h3 {
+    margin: 24px 0 8px 0;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-french-roulette .pm-explainer h3:first-child { margin-top: 0; }
+  .pm-calc-french-roulette .pm-explainer p {
+    margin: 0 0 12px 0;
+    color: var(--pm-text);
+  }
+  .pm-calc-french-roulette .pm-explainer dl { margin: 0 0 12px 0; }
+  .pm-calc-french-roulette .pm-explainer dt {
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--pm-text);
+  }
+  .pm-calc-french-roulette .pm-explainer dd {
+    margin: 2px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-french-roulette .pm-callout {
+    margin: 14px 0;
+    padding: 14px 16px;
+    background: rgba(79, 140, 255, 0.08);
+    border-left: 3px solid var(--pm-accent);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .pm-calc-french-roulette .pm-table-wrap {
+    overflow-x: auto;
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-french-roulette table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .pm-calc-french-roulette th,
+  .pm-calc-french-roulette td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-french-roulette th {
+    color: var(--pm-muted);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="pm-calc-french-roulette">
+  <h2>French Roulette Calculator</h2>
+  <p class="pm-subtitle">Compute house edge, win probability, and expected loss for any bet on a French roulette wheel (single zero, La Partage / En Prison).</p>
+
+  <div class="pm-grid">
+    <label for="pm-fr-bet">Bet type</label>
+    <select id="pm-fr-bet">
+      <option value="straight">Straight up (1 number, 35:1)</option>
+      <option value="split">Split (2 numbers, 17:1)</option>
+      <option value="street">Street (3 numbers, 11:1)</option>
+      <option value="corner">Corner (4 numbers, 8:1)</option>
+      <option value="six-line">Six line (6 numbers, 5:1)</option>
+      <option value="column">Column (12 numbers, 2:1)</option>
+      <option value="dozen">Dozen (12 numbers, 2:1)</option>
+      <option value="even-money" selected>Red / Black / Odd / Even / High / Low (1:1)</option>
+    </select>
+
+    <label for="pm-fr-rule">Zero rule</label>
+    <select id="pm-fr-rule">
+      <option value="la-partage" selected>La Partage (half back on 0)</option>
+      <option value="en-prison">En Prison (bet held for next spin)</option>
+      <option value="standard">Standard (no special rule)</option>
+    </select>
+    <div class="pm-rule-note" data-role="rule-note"></div>
+
+    <label for="pm-fr-stake">Stake per spin</label>
+    <input id="pm-fr-stake" type="text" inputmode="decimal" placeholder="100" value="100" />
+  </div>
+
+  <div class="pm-results">
+    <div class="pm-result-row">
+      <span class="pm-result-label">Win probability</span>
+      <span class="pm-result-value" data-role="win-prob">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Payout on win (incl. stake)</span>
+      <span class="pm-result-value" data-role="payout">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">House edge</span>
+      <span class="pm-result-value pm-edge" data-role="edge">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Expected loss per spin</span>
+      <span class="pm-result-value pm-loss" data-role="ev-spin">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Expected loss per 100 spins</span>
+      <span class="pm-result-value pm-loss" data-role="ev-100">—</span>
+    </div>
+  </div>
+
+  <div class="pm-error" data-role="error"></div>
+
+  <p class="pm-footer">
+    French roulette uses a 37-pocket wheel (numbers 0-36). La Partage and En Prison apply only to even-money outside bets (Red / Black / Odd / Even / High / Low) and cut the house edge on those bets from 2.70% to 1.35%.
+  </p>
+
+  <div class="pm-explainer">
+    <h3>About the French Roulette Calculator</h3>
+    <p>
+      French roulette is the original European-rules variant: a 37-pocket wheel with a single zero, identical layout to standard European roulette, plus one of two rules that protect even-money bets when the ball lands on zero. Those two rules — La Partage and En Prison — give French roulette the lowest house edge of any standard roulette variant, and one of the lowest in the entire casino on the affected bets.
+    </p>
+    <p>
+      This calculator computes the house edge, win probability, payout, and expected loss for any standard bet on a French wheel. Pick the bet type, choose the zero rule your table is running, and enter your stake. The "Expected loss per 100 spins" line is the most practical output — it tells you the average bankroll bleed if you sit down and spin 100 times.
+    </p>
+
+    <h3>House edges by bet type</h3>
+    <p>The house edge for every standard bet on a French roulette wheel:</p>
+    <div class="pm-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Bet</th>
+            <th>Payout</th>
+            <th>Win %</th>
+            <th>Edge (standard)</th>
+            <th>Edge (La Partage / En Prison)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Straight up (1 number)</td><td>35:1</td><td>2.70</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Split (2 numbers)</td><td>17:1</td><td>5.41</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Street (3 numbers)</td><td>11:1</td><td>8.11</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Corner (4 numbers)</td><td>8:1</td><td>10.81</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Six line (6 numbers)</td><td>5:1</td><td>16.22</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Column (12 numbers)</td><td>2:1</td><td>32.43</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Dozen (12 numbers)</td><td>2:1</td><td>32.43</td><td>2.70</td><td>2.70</td></tr>
+          <tr><td>Red / Black / Odd / Even / High / Low</td><td>1:1</td><td>48.65</td><td>2.70</td><td><strong>1.35</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why French roulette has the lowest house edge in the casino</h3>
+    <div class="pm-callout">
+      On a French wheel with La Partage or En Prison, the house edge on even-money bets is 1.35% — lower than blackjack with standard rules (typically 0.5%–1.5% depending on rule set), lower than baccarat banker (1.06%), and dramatically lower than American roulette's 5.26%. If you're going to play roulette, French rules on red/black is the mathematically best bet on the floor. Most other bets on the French wheel still carry the same 2.70% edge as European roulette — the special rules only protect even-money outside bets.
+    </div>
+    <p>
+      The two rules are mathematically equivalent. La Partage returns half your stake immediately when the ball lands on zero. En Prison locks your bet in place for one more spin — if your bet wins on that next spin, you get your full original stake back (no profit). Both produce the same expected value: half the loss you'd take under standard European rules.
+    </p>
+
+    <h3>Bet type reference</h3>
+    <dl>
+      <dt>Straight up — 35:1</dt>
+      <dd>One number. Highest payout, lowest probability. 1/37 = 2.70% win rate.</dd>
+      <dt>Split — 17:1</dt>
+      <dd>Two adjacent numbers (chip on the line between them). 2/37 = 5.41% win rate.</dd>
+      <dt>Street — 11:1</dt>
+      <dd>Three numbers in a row (chip on the outer edge of the row). 3/37 = 8.11%.</dd>
+      <dt>Corner — 8:1</dt>
+      <dd>Four numbers meeting at one corner. 4/37 = 10.81%.</dd>
+      <dt>Six line — 5:1</dt>
+      <dd>Two adjacent rows of three. 6/37 = 16.22%.</dd>
+      <dt>Column — 2:1</dt>
+      <dd>Twelve numbers in one of the three vertical columns. 12/37 = 32.43%.</dd>
+      <dt>Dozen — 2:1</dt>
+      <dd>1st (1-12), 2nd (13-24), or 3rd (25-36) twelve numbers. 12/37 = 32.43%.</dd>
+      <dt>Red / Black / Odd / Even / High / Low — 1:1</dt>
+      <dd>Eighteen numbers each. 18/37 = 48.65%. These are the only bets La Partage and En Prison affect.</dd>
+    </dl>
+  </div>
+</div>
+
+<script type="module" src="./french-roulette.js"></script>
+<!--
+  ============================================================================
+  END CALC BODY
+  ============================================================================
+-->
+
+</body>
+</html>

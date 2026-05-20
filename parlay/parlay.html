@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parlay Calculator</title>
+  <style>
+    body { margin: 0; padding: 24px 16px; background: #0f1115; }
+  </style>
+</head>
+<body>
+
+<!--
+  ============================================================================
+  BEGIN CALC BODY — copy everything between this marker and END CALC BODY
+  into a XenForo Page node template. Host odds-math.js + parlay.js separately
+  and update the <script src> path to wherever you upload them.
+
+  All styles are scoped under .pm-calc-parlay so they will not bleed into
+  the surrounding XenForo theme.
+  ============================================================================
+-->
+<style>
+  .pm-calc-parlay {
+    --pm-bg: #0f1115;
+    --pm-card: #181b22;
+    --pm-border: #2a2f3a;
+    --pm-text: #e6e8ec;
+    --pm-muted: #8a93a6;
+    --pm-accent: #4f8cff;
+    --pm-error: #ff6b6b;
+    --pm-success: #4caf78;
+
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px;
+    background: var(--pm-card);
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+  }
+  .pm-calc-parlay *,
+  .pm-calc-parlay *::before,
+  .pm-calc-parlay *::after { box-sizing: border-box; }
+  .pm-calc-parlay h2 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    color: var(--pm-text);
+  }
+  .pm-calc-parlay .pm-subtitle {
+    margin: 0 0 20px 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-parlay .pm-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+  }
+  .pm-calc-parlay label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-parlay input,
+  .pm-calc-parlay select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+  }
+  .pm-calc-parlay input:focus,
+  .pm-calc-parlay select:focus {
+    outline: none;
+    border-color: var(--pm-accent);
+  }
+  .pm-calc-parlay .pm-stake-row {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    gap: 8px;
+  }
+  .pm-calc-parlay .pm-divider {
+    margin: 20px 0 12px 0;
+    border: 0;
+    border-top: 1px solid var(--pm-border);
+  }
+  .pm-calc-parlay .pm-legs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-parlay .pm-legs-title {
+    font-size: 14px;
+    color: var(--pm-muted);
+    font-weight: 500;
+  }
+  .pm-calc-parlay .pm-legs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pm-calc-parlay .pm-leg-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 40px;
+    gap: 8px;
+    align-items: center;
+  }
+  .pm-calc-parlay .pm-leg-label {
+    color: var(--pm-muted);
+    font-size: 14px;
+    padding-left: 4px;
+  }
+  .pm-calc-parlay .pm-leg-remove {
+    background: transparent;
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-muted);
+    cursor: pointer;
+    padding: 10px 0;
+    font-size: 16px;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .pm-calc-parlay .pm-leg-remove:hover {
+    color: var(--pm-error);
+    border-color: var(--pm-error);
+  }
+  .pm-calc-parlay .pm-leg-remove[disabled] {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .pm-calc-parlay .pm-add-leg {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px dashed var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-accent);
+    cursor: pointer;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    transition: all 0.15s;
+  }
+  .pm-calc-parlay .pm-add-leg:hover {
+    border-color: var(--pm-accent);
+    background: rgba(79, 140, 255, 0.05);
+  }
+  .pm-calc-parlay .pm-results {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+  }
+  .pm-calc-parlay .pm-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-parlay .pm-result-row:last-child { border-bottom: 0; }
+  .pm-calc-parlay .pm-result-label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-parlay .pm-result-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-parlay .pm-result-value.pm-profit {
+    color: var(--pm-success);
+    font-weight: 600;
+  }
+  .pm-calc-parlay .pm-error {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--pm-error);
+    border-radius: 8px;
+    color: var(--pm-error);
+    font-size: 13px;
+    display: none;
+  }
+  .pm-calc-parlay .pm-error.pm-visible { display: block; }
+  .pm-calc-parlay .pm-footer {
+    margin: 16px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Explainer section — SEO body copy that travels with the embed */
+  .pm-calc-parlay .pm-explainer {
+    max-width: 560px;
+    margin: 28px auto 0 auto;
+    padding: 0 4px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .pm-calc-parlay .pm-explainer h3 {
+    margin: 24px 0 8px 0;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-parlay .pm-explainer h3:first-child { margin-top: 0; }
+  .pm-calc-parlay .pm-explainer p {
+    margin: 0 0 12px 0;
+    color: var(--pm-text);
+  }
+  .pm-calc-parlay .pm-explainer dl { margin: 0 0 12px 0; }
+  .pm-calc-parlay .pm-explainer dt {
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--pm-text);
+  }
+  .pm-calc-parlay .pm-explainer dd {
+    margin: 2px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-parlay .pm-callout {
+    margin: 14px 0;
+    padding: 14px 16px;
+    background: rgba(79, 140, 255, 0.08);
+    border-left: 3px solid var(--pm-accent);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .pm-calc-parlay .pm-table-wrap {
+    overflow-x: auto;
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-parlay table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .pm-calc-parlay th,
+  .pm-calc-parlay td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-parlay th {
+    color: var(--pm-muted);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="pm-calc-parlay">
+  <h2>Parlay Calculator</h2>
+  <p class="pm-subtitle">Combine multiple bets into one wager. All legs must win for the parlay to pay.</p>
+
+  <div class="pm-grid">
+    <label for="pm-parlay-stake">Stake</label>
+    <input id="pm-parlay-stake" type="text" inputmode="decimal" placeholder="100" />
+
+    <label for="pm-parlay-format">Odds format</label>
+    <select id="pm-parlay-format">
+      <option value="american" selected>American</option>
+      <option value="decimal">Decimal</option>
+      <option value="fractional">Fractional</option>
+      <option value="hongkong">Hong Kong</option>
+      <option value="indonesian">Indonesian</option>
+      <option value="malay">Malay</option>
+      <option value="implied">Implied %</option>
+    </select>
+  </div>
+
+  <hr class="pm-divider" />
+
+  <div class="pm-legs-header">
+    <span class="pm-legs-title">Parlay legs</span>
+  </div>
+  <div class="pm-legs" data-role="legs"></div>
+  <button type="button" class="pm-add-leg" data-role="add-leg">+ Add leg</button>
+
+  <div class="pm-results">
+    <div class="pm-result-row">
+      <span class="pm-result-label">Combined odds (decimal)</span>
+      <span class="pm-result-value" data-role="combined-decimal">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Combined odds (American)</span>
+      <span class="pm-result-value" data-role="combined-american">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Total payout</span>
+      <span class="pm-result-value" data-role="payout">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Net profit</span>
+      <span class="pm-result-value pm-profit" data-role="profit">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Implied probability</span>
+      <span class="pm-result-value" data-role="implied">—</span>
+    </div>
+  </div>
+
+  <div class="pm-error" data-role="error"></div>
+
+  <p class="pm-footer">
+    Combined odds multiply each leg's decimal odds together. All legs must win for the parlay to pay out; one losing leg loses the entire wager.
+  </p>
+
+  <div class="pm-explainer">
+    <h3>About the Parlay Calculator</h3>
+    <p>
+      A parlay (also called an accumulator, multi, or combo) is a single bet that combines two or more separate selections. All selections must win for the parlay to pay out. In exchange for that all-or-nothing risk, the payout scales multiplicatively — a 4-leg parlay at −110 each pays around 12-to-1 instead of the roughly 1-to-1 you'd get on each single bet.
+    </p>
+    <p>
+      This calculator multiplies the decimal odds of every leg you enter, then applies your stake to show the combined payout, net profit, and implied probability of the parlay hitting. Use it to size parlay stakes, compare parlay prices across books, or see how adding one more leg changes the math.
+    </p>
+
+    <h3>Worked examples</h3>
+    <p>100-unit stake on common parlay configurations (all legs at −110, i.e. decimal 1.9091):</p>
+    <div class="pm-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Legs</th>
+            <th>Combined decimal</th>
+            <th>Combined American</th>
+            <th>Total payout</th>
+            <th>Net profit</th>
+            <th>Implied %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2</td><td>3.6446</td><td>+264</td><td>364.46</td><td>264.46</td><td>27.44</td></tr>
+          <tr><td>3</td><td>6.9579</td><td>+596</td><td>695.79</td><td>595.79</td><td>14.37</td></tr>
+          <tr><td>4</td><td>13.2833</td><td>+1228</td><td>1,328.33</td><td>1,228.33</td><td>7.53</td></tr>
+          <tr><td>5</td><td>25.3591</td><td>+2436</td><td>2,535.91</td><td>2,435.91</td><td>3.94</td></tr>
+          <tr><td>6</td><td>48.4127</td><td>+4741</td><td>4,841.27</td><td>4,741.27</td><td>2.07</td></tr>
+          <tr><td>10</td><td>643.08</td><td>+64208</td><td>64,308.16</td><td>64,208.16</td><td>0.16</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why parlays favour the house</h3>
+    <div class="pm-callout">
+      Every single bet at −110 carries roughly a 4.5% house edge. When you parlay legs together, those edges compound. A 4-leg parlay at −110s carries an effective hold close to 18% — much higher than the 4.5% on each individual leg. The math is correct and the payouts are real, but the bet's expected value is worse than placing the same legs as singles. Parlays make sense when you have positive expected value on every leg, or when the entertainment of a long-shot ticket is worth the negative EV.
+    </div>
+    <p>
+      A correlated parlay (e.g. NFL favourite to win + same team to cover the spread) is a different case — the legs are not independent and most books either disallow it or recompute the price. The math here assumes independent legs, which is the standard sportsbook treatment.
+    </p>
+
+    <h3>Odds format reference</h3>
+    <dl>
+      <dt>American (+150 / −200)</dt>
+      <dd>Positive = profit on a 100-unit stake. Negative = stake needed to win 100. Standard at US sportsbooks.</dd>
+
+      <dt>Decimal (2.50)</dt>
+      <dd>Total return per 1 unit staked, stake included. Multiply leg decimals together to get combined parlay decimal.</dd>
+
+      <dt>Fractional (3/2)</dt>
+      <dd>Net profit per unit staked. 3/2 means risk 2 to win 3. Common in UK and horse racing.</dd>
+
+      <dt>Hong Kong (1.50)</dt>
+      <dd>Net profit per 1 unit staked, stake excluded. Decimal odds minus 1.</dd>
+
+      <dt>Indonesian (1.50 / −2.00)</dt>
+      <dd>American odds divided by 100. Common across Indonesian, Singaporean, and broader Asian sportsbooks.</dd>
+
+      <dt>Malay (0.50 / −0.67)</dt>
+      <dd>Capped between −1 and 1. Positive = underdog, negative = favourite. Common across Malaysian markets.</dd>
+
+      <dt>Implied probability (40%)</dt>
+      <dd>Break-even win rate at the offered odds. Multiplied across legs gives the parlay's combined implied probability.</dd>
+    </dl>
+  </div>
+</div>
+
+<script type="module" src="./parlay.js"></script>
+<!--
+  ============================================================================
+  END CALC BODY
+  ============================================================================
+-->
+
+</body>
+</html>

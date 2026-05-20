@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Odds Converter</title>
+  <style>
+    /* Standalone-preview-only styles. NOT part of the embed payload below. */
+    body { margin: 0; padding: 24px 16px; background: #0f1115; }
+  </style>
+</head>
+<body>
+
+<!--
+  ============================================================================
+  BEGIN CALC BODY — copy everything between this marker and END CALC BODY
+  into a XenForo Page node template. Host odds-math.js + odds-converter.js
+  separately and update the <script src> path to wherever you upload them.
+
+  All styles are scoped under .pm-calc-odds-converter so they will not bleed
+  into the surrounding XenForo theme.
+  ============================================================================
+-->
+<style>
+  .pm-calc-odds-converter {
+    --pm-bg: #0f1115;
+    --pm-card: #181b22;
+    --pm-border: #2a2f3a;
+    --pm-text: #e6e8ec;
+    --pm-muted: #8a93a6;
+    --pm-accent: #4f8cff;
+    --pm-error: #ff6b6b;
+
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px;
+    background: var(--pm-card);
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+  }
+  .pm-calc-odds-converter *,
+  .pm-calc-odds-converter *::before,
+  .pm-calc-odds-converter *::after { box-sizing: border-box; }
+  .pm-calc-odds-converter h2 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    color: var(--pm-text);
+  }
+  .pm-calc-odds-converter .pm-subtitle {
+    margin: 0 0 20px 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-odds-converter .pm-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+  }
+  .pm-calc-odds-converter label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-odds-converter input {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+  }
+  .pm-calc-odds-converter input:focus {
+    outline: none;
+    border-color: var(--pm-accent);
+  }
+  .pm-calc-odds-converter input.pm-dirty {
+    border-color: var(--pm-accent);
+  }
+  .pm-calc-odds-converter .pm-error {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--pm-error);
+    border-radius: 8px;
+    color: var(--pm-error);
+    font-size: 13px;
+    display: none;
+  }
+  .pm-calc-odds-converter .pm-error.pm-visible { display: block; }
+  .pm-calc-odds-converter .pm-footer {
+    margin: 16px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Explainer section — SEO body copy that travels with the embed */
+  .pm-calc-odds-converter .pm-explainer {
+    max-width: 560px;
+    margin: 28px auto 0 auto;
+    padding: 0 4px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .pm-calc-odds-converter .pm-explainer h3 {
+    margin: 24px 0 8px 0;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-odds-converter .pm-explainer h3:first-child { margin-top: 0; }
+  .pm-calc-odds-converter .pm-explainer p {
+    margin: 0 0 12px 0;
+    color: var(--pm-text);
+  }
+  .pm-calc-odds-converter .pm-explainer dl {
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-odds-converter .pm-explainer dt {
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--pm-text);
+  }
+  .pm-calc-odds-converter .pm-explainer dd {
+    margin: 2px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-odds-converter .pm-callout {
+    margin: 14px 0;
+    padding: 14px 16px;
+    background: rgba(79, 140, 255, 0.08);
+    border-left: 3px solid var(--pm-accent);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .pm-calc-odds-converter .pm-table-wrap {
+    overflow-x: auto;
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-odds-converter table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .pm-calc-odds-converter th,
+  .pm-calc-odds-converter td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-odds-converter th {
+    color: var(--pm-muted);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="pm-calc-odds-converter">
+  <h2>Odds Converter</h2>
+  <p class="pm-subtitle">Type any format. The others update instantly.</p>
+
+  <div class="pm-grid">
+    <label for="pm-oc-decimal">Decimal</label>
+    <input id="pm-oc-decimal" data-format="decimal" inputmode="decimal" placeholder="2.50" />
+
+    <label for="pm-oc-american">American</label>
+    <input id="pm-oc-american" data-format="american" inputmode="numeric" placeholder="+150" />
+
+    <label for="pm-oc-fractional">Fractional</label>
+    <input id="pm-oc-fractional" data-format="fractional" placeholder="3/2" />
+
+    <label for="pm-oc-implied">Implied %</label>
+    <input id="pm-oc-implied" data-format="implied" inputmode="decimal" placeholder="40" />
+
+    <label for="pm-oc-hongkong">Hong Kong</label>
+    <input id="pm-oc-hongkong" data-format="hongkong" inputmode="decimal" placeholder="1.50" />
+
+    <label for="pm-oc-indonesian">Indonesian</label>
+    <input id="pm-oc-indonesian" data-format="indonesian" inputmode="decimal" placeholder="1.50" />
+
+    <label for="pm-oc-malay">Malay</label>
+    <input id="pm-oc-malay" data-format="malay" inputmode="decimal" placeholder="-0.67" />
+  </div>
+
+  <div class="pm-error" data-role="error"></div>
+
+  <p class="pm-footer">
+    Decimal odds include your stake (1.0 = even money loses). American odds use ±100 for even money. Implied probability is shown as a percentage.
+  </p>
+
+  <div class="pm-explainer">
+    <h3>About the Odds Converter</h3>
+    <p>
+      Sportsbooks publish odds in different formats depending on the region. American (+150, −200) dominates US books, decimal (2.50) is standard in Europe and most exchanges, fractional (3/2) is the traditional UK and horse-racing notation, and Hong Kong, Indonesian, and Malay are common across Asian markets. The numbers all describe the same underlying probability — they're just three different ways to write it down.
+    </p>
+    <p>
+      This tool converts between all seven formats at once. Type a value in any field and the other six update instantly, so you can compare prices across books that quote in different formats or sanity-check a number you've been given.
+    </p>
+
+    <h3>Worked example</h3>
+    <p>The table below shows the same odds expressed in every format. A +150 underdog in American is the same bet as 2.50 decimal, 3/2 fractional, or a 40% implied win probability.</p>
+    <div class="pm-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Decimal</th>
+            <th>American</th>
+            <th>Fractional</th>
+            <th>Implied %</th>
+            <th>HK</th>
+            <th>Indo</th>
+            <th>Malay</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Heavy favourite</td><td>1.25</td><td>−400</td><td>1/4</td><td>80.00</td><td>0.25</td><td>−4.00</td><td>−0.25</td></tr>
+          <tr><td>Slight favourite</td><td>1.67</td><td>−149</td><td>2/3</td><td>59.88</td><td>0.67</td><td>−1.49</td><td>−0.67</td></tr>
+          <tr><td>Even money</td><td>2.00</td><td>+100</td><td>1/1</td><td>50.00</td><td>1.00</td><td>1.00</td><td>1.00</td></tr>
+          <tr><td>Slight underdog</td><td>2.50</td><td>+150</td><td>3/2</td><td>40.00</td><td>1.50</td><td>1.50</td><td>−0.67</td></tr>
+          <tr><td>Heavy underdog</td><td>5.00</td><td>+400</td><td>4/1</td><td>20.00</td><td>4.00</td><td>4.00</td><td>−0.25</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What implied probability tells you</h3>
+    <div class="pm-callout">
+      Implied probability is the win rate a bet would need to break even at the offered price. If a book lists +150 (40% implied), and you think the true probability is higher than 40%, the bet has positive expected value. If your estimate is lower, you're paying the vig with no edge.
+    </div>
+    <p>
+      Sportsbooks build a margin (the vig or juice) into their lines, so the implied probabilities on both sides of a market typically add up to more than 100%. Comparing the book's implied number to your own model is the simplest first check before placing a bet.
+    </p>
+
+    <h3>Format reference</h3>
+    <dl>
+      <dt>Decimal (2.50)</dt>
+      <dd>Total return per 1 unit staked, stake included. Multiply your stake by the decimal odds to get your full payout.</dd>
+
+      <dt>American (+150 / −200)</dt>
+      <dd>Positive number = profit on a $100 stake. Negative number = stake needed to win $100. Used by all US sportsbooks.</dd>
+
+      <dt>Fractional (3/2)</dt>
+      <dd>Numerator over denominator equals net profit per unit staked. 3/2 means risk 2 to win 3, plus your stake back. Common in UK and horse racing.</dd>
+
+      <dt>Implied probability (40%)</dt>
+      <dd>The break-even win rate at the offered odds. 1 / decimal odds × 100.</dd>
+
+      <dt>Hong Kong (1.50)</dt>
+      <dd>Net profit per unit staked, stake not included. Decimal odds minus 1.</dd>
+
+      <dt>Indonesian (1.50 / −2.00)</dt>
+      <dd>Same as American but divided by 100. Positive = profit per 1 unit, negative = stake needed to win 1 unit.</dd>
+
+      <dt>Malay (0.50 / −0.67)</dt>
+      <dd>Capped between −1 and 1. Positive means underdog (profit per 1 unit), negative means favourite (stake needed to win 1 unit).</dd>
+    </dl>
+  </div>
+</div>
+
+<script type="module" src="./odds-converter.js"></script>
+<!--
+  ============================================================================
+  END CALC BODY
+  ============================================================================
+-->
+
+</body>
+</html>

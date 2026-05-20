@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baccarat Calculator</title>
+  <style>
+    body { margin: 0; padding: 24px 16px; background: #0f1115; }
+  </style>
+</head>
+<body>
+
+<!--
+  ============================================================================
+  BEGIN CALC BODY — copy everything between this marker and END CALC BODY
+  into a XenForo Page node template. Host baccarat.js separately and update
+  the <script src> path to wherever you upload it. This calc has no external
+  math dependency, so odds-math.js is not required here.
+
+  All styles are scoped under .pm-calc-baccarat so they will not bleed into
+  the surrounding XenForo theme.
+  ============================================================================
+-->
+<style>
+  .pm-calc-baccarat {
+    --pm-bg: #0f1115;
+    --pm-card: #181b22;
+    --pm-border: #2a2f3a;
+    --pm-text: #e6e8ec;
+    --pm-muted: #8a93a6;
+    --pm-accent: #4f8cff;
+    --pm-error: #ff6b6b;
+    --pm-success: #4caf78;
+    --pm-warn: #f4b860;
+
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px;
+    background: var(--pm-card);
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+  }
+  .pm-calc-baccarat *,
+  .pm-calc-baccarat *::before,
+  .pm-calc-baccarat *::after { box-sizing: border-box; }
+  .pm-calc-baccarat h2 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    color: var(--pm-text);
+  }
+  .pm-calc-baccarat .pm-subtitle {
+    margin: 0 0 20px 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-baccarat .pm-grid {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+  }
+  .pm-calc-baccarat label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-baccarat input,
+  .pm-calc-baccarat select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+  }
+  .pm-calc-baccarat input:focus,
+  .pm-calc-baccarat select:focus {
+    outline: none;
+    border-color: var(--pm-accent);
+  }
+  .pm-calc-baccarat .pm-results {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+  }
+  .pm-calc-baccarat .pm-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-baccarat .pm-result-row:last-child { border-bottom: 0; }
+  .pm-calc-baccarat .pm-result-label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-baccarat .pm-result-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-baccarat .pm-result-value.pm-edge {
+    color: var(--pm-warn);
+    font-weight: 600;
+  }
+  .pm-calc-baccarat .pm-result-value.pm-loss {
+    color: var(--pm-error);
+    font-weight: 600;
+  }
+  .pm-calc-baccarat .pm-error {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--pm-error);
+    border-radius: 8px;
+    color: var(--pm-error);
+    font-size: 13px;
+    display: none;
+  }
+  .pm-calc-baccarat .pm-error.pm-visible { display: block; }
+  .pm-calc-baccarat .pm-footer {
+    margin: 16px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Explainer section — SEO body copy that travels with the embed */
+  .pm-calc-baccarat .pm-explainer {
+    max-width: 560px;
+    margin: 28px auto 0 auto;
+    padding: 0 4px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .pm-calc-baccarat .pm-explainer h3 {
+    margin: 24px 0 8px 0;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-baccarat .pm-explainer h3:first-child { margin-top: 0; }
+  .pm-calc-baccarat .pm-explainer p {
+    margin: 0 0 12px 0;
+    color: var(--pm-text);
+  }
+  .pm-calc-baccarat .pm-explainer dl { margin: 0 0 12px 0; }
+  .pm-calc-baccarat .pm-explainer dt {
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--pm-text);
+  }
+  .pm-calc-baccarat .pm-explainer dd {
+    margin: 2px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-baccarat .pm-callout {
+    margin: 14px 0;
+    padding: 14px 16px;
+    background: rgba(79, 140, 255, 0.08);
+    border-left: 3px solid var(--pm-accent);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .pm-calc-baccarat .pm-table-wrap {
+    overflow-x: auto;
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-baccarat table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .pm-calc-baccarat th,
+  .pm-calc-baccarat td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-baccarat th {
+    color: var(--pm-muted);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="pm-calc-baccarat">
+  <h2>Baccarat Calculator</h2>
+  <p class="pm-subtitle">House edge, win probability, and expected loss for every standard bet on an 8-deck baccarat shoe.</p>
+
+  <div class="pm-grid">
+    <label for="pm-bac-bet">Bet</label>
+    <select id="pm-bac-bet">
+      <option value="banker" selected>Banker (1:1 minus 5% commission)</option>
+      <option value="player">Player (1:1)</option>
+      <option value="tie-8">Tie (8:1)</option>
+      <option value="tie-9">Tie (9:1, less common)</option>
+      <option value="banker-pair">Banker Pair (11:1)</option>
+      <option value="player-pair">Player Pair (11:1)</option>
+    </select>
+
+    <label for="pm-bac-stake">Stake per hand</label>
+    <input id="pm-bac-stake" type="text" inputmode="decimal" placeholder="100" value="100" />
+  </div>
+
+  <div class="pm-results">
+    <div class="pm-result-row">
+      <span class="pm-result-label">Win probability</span>
+      <span class="pm-result-value" data-role="win-prob">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Push probability (tie)</span>
+      <span class="pm-result-value" data-role="push-prob">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Lose probability</span>
+      <span class="pm-result-value" data-role="lose-prob">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Payout on win (incl. stake)</span>
+      <span class="pm-result-value" data-role="payout">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">House edge</span>
+      <span class="pm-result-value pm-edge" data-role="edge">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Expected loss per hand</span>
+      <span class="pm-result-value pm-loss" data-role="ev-hand">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Expected loss per 100 hands</span>
+      <span class="pm-result-value pm-loss" data-role="ev-100">—</span>
+    </div>
+  </div>
+
+  <div class="pm-error" data-role="error"></div>
+
+  <p class="pm-footer">
+    Probabilities are based on an 8-deck shoe (the standard for most casino baccarat). Banker bet payout shown after the 5% commission. Pair bets are side bets — they resolve independently of the main hand outcome.
+  </p>
+
+  <div class="pm-explainer">
+    <h3>About the Baccarat Calculator</h3>
+    <p>
+      Baccarat is the simplest table game in the casino: two hands are dealt — Player and Banker — and you bet on which will end closer to a total of 9. The drawing rules are fixed (no decisions to make), so there's no strategy beyond which bet to place. The whole game reduces to picking among a small set of bets with known house edges. Banker is the best, Player is a close second, and Tie is one of the worst bets in the casino.
+    </p>
+    <p>
+      This calculator gives you the exact probabilities, payout, house edge, and expected loss for any standard bet on an 8-deck shoe. Pair side bets (Player Pair / Banker Pair) are included for completeness — they're available on most tables but carry significantly worse odds than the main wagers.
+    </p>
+
+    <h3>House edges by bet</h3>
+    <p>Probabilities from an 8-deck shoe (the casino standard). Banker shown net of the 5% commission.</p>
+    <div class="pm-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Bet</th>
+            <th>Payout</th>
+            <th>Win %</th>
+            <th>Push %</th>
+            <th>House edge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Banker</td><td>0.95:1</td><td>45.86</td><td>9.52</td><td><strong>1.06</strong></td></tr>
+          <tr><td>Player</td><td>1:1</td><td>44.62</td><td>9.52</td><td>1.24</td></tr>
+          <tr><td>Tie</td><td>8:1</td><td>9.52</td><td>—</td><td>14.36</td></tr>
+          <tr><td>Tie</td><td>9:1</td><td>9.52</td><td>—</td><td>4.84</td></tr>
+          <tr><td>Banker Pair</td><td>11:1</td><td>7.47</td><td>—</td><td>10.36</td></tr>
+          <tr><td>Player Pair</td><td>11:1</td><td>7.47</td><td>—</td><td>10.36</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why Banker is the best bet on the table</h3>
+    <div class="pm-callout">
+      Banker wins 45.86% of resolved hands versus Player's 44.62% — a real edge baked into the drawing rules. The 5% commission on Banker wins exists precisely to claw back that advantage; without it, Banker would be a player-favourable bet. After the commission, the house keeps a 1.06% edge on Banker versus 1.24% on Player. The takeaway: when in doubt, bet Banker. The "always bet Banker" strategy isn't a system — it's just the mathematically correct default given the bet menu.
+    </div>
+    <p>
+      The Tie bet is the famous trap. At 8:1 it carries a 14.36% house edge — more than 10× the edge on Banker or Player. The 9:1 version (offered at some Asian and online casinos) drops the edge to 4.84%, which is still worse than red/black on American roulette. There's no version of the Tie bet that competes with the main wagers, and the "ties happen in clusters" pattern bettors think they see is selection bias, not signal.
+    </p>
+
+    <h3>Side bets: usually skip</h3>
+    <p>
+      Pair bets (Player Pair, Banker Pair) pay 11:1 if the first two cards dealt to that side form a pair (e.g. two 7s). The probability is roughly 7.47% on an 8-deck shoe, producing a 10.36% house edge. Some casinos offer additional side bets — Perfect Pair, Either Pair, Big/Small, Dragon 7, Panda 8 — most of which carry edges in the 4-15% range. They make the game more interesting but cost you bankroll if played routinely.
+    </p>
+
+    <h3>Bet reference</h3>
+    <dl>
+      <dt>Banker — 0.95:1 (1:1 minus 5% commission)</dt>
+      <dd>Wins when the Banker hand totals closer to 9. Lowest house edge on the table: 1.06%. Best default bet.</dd>
+      <dt>Player — 1:1</dt>
+      <dd>Wins when the Player hand totals closer to 9. No commission. House edge: 1.24%.</dd>
+      <dt>Tie — 8:1</dt>
+      <dd>Pays when both hands total the same. House edge: 14.36%. Avoid.</dd>
+      <dt>Tie — 9:1 (rare)</dt>
+      <dd>Same bet, better payout at select casinos. House edge: 4.84%. Still bad relative to Banker / Player.</dd>
+      <dt>Banker Pair / Player Pair — 11:1</dt>
+      <dd>Side bets. Pay when the first two cards to that side form a pair. House edge: 10.36%.</dd>
+    </dl>
+  </div>
+</div>
+
+<script type="module" src="./baccarat.js"></script>
+<!--
+  ============================================================================
+  END CALC BODY
+  ============================================================================
+-->
+
+</body>
+</html>

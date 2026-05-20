@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Casino Bonus Playthrough Calculator</title>
+  <style>
+    body { margin: 0; padding: 24px 16px; background: #0f1115; }
+  </style>
+</head>
+<body>
+
+<!--
+  ============================================================================
+  BEGIN CALC BODY — copy everything between this marker and END CALC BODY
+  into a XenForo Page node template. Host casino-bonus-playthrough.js
+  separately and update the <script src> path to wherever you upload it.
+  This calc has no external math dependency.
+
+  All styles are scoped under .pm-calc-casino-bonus so they will not bleed
+  into the surrounding XenForo theme.
+  ============================================================================
+-->
+<style>
+  .pm-calc-casino-bonus {
+    --pm-bg: #0f1115;
+    --pm-card: #181b22;
+    --pm-border: #2a2f3a;
+    --pm-text: #e6e8ec;
+    --pm-muted: #8a93a6;
+    --pm-accent: #4f8cff;
+    --pm-error: #ff6b6b;
+    --pm-success: #4caf78;
+    --pm-warn: #f4b860;
+
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px;
+    background: var(--pm-card);
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+  }
+  .pm-calc-casino-bonus *,
+  .pm-calc-casino-bonus *::before,
+  .pm-calc-casino-bonus *::after { box-sizing: border-box; }
+  .pm-calc-casino-bonus h2 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    color: var(--pm-text);
+  }
+  .pm-calc-casino-bonus .pm-subtitle {
+    margin: 0 0 20px 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-casino-bonus .pm-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+  }
+  .pm-calc-casino-bonus label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-casino-bonus input,
+  .pm-calc-casino-bonus select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+    color: var(--pm-text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 15px;
+  }
+  .pm-calc-casino-bonus input:focus,
+  .pm-calc-casino-bonus select:focus {
+    outline: none;
+    border-color: var(--pm-accent);
+  }
+  .pm-calc-casino-bonus .pm-results {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: 8px;
+  }
+  .pm-calc-casino-bonus .pm-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-casino-bonus .pm-result-row:last-child { border-bottom: 0; }
+  .pm-calc-casino-bonus .pm-result-label {
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-casino-bonus .pm-result-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-casino-bonus .pm-result-value.pm-good {
+    color: var(--pm-success);
+    font-weight: 600;
+  }
+  .pm-calc-casino-bonus .pm-result-value.pm-bad {
+    color: var(--pm-error);
+    font-weight: 600;
+  }
+  .pm-calc-casino-bonus .pm-error {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--pm-error);
+    border-radius: 8px;
+    color: var(--pm-error);
+    font-size: 13px;
+    display: none;
+  }
+  .pm-calc-casino-bonus .pm-error.pm-visible { display: block; }
+  .pm-calc-casino-bonus .pm-footer {
+    margin: 16px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Explainer section — SEO body copy that travels with the embed */
+  .pm-calc-casino-bonus .pm-explainer {
+    max-width: 560px;
+    margin: 28px auto 0 auto;
+    padding: 0 4px;
+    color: var(--pm-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .pm-calc-casino-bonus .pm-explainer h3 {
+    margin: 24px 0 8px 0;
+    font-size: 17px;
+    color: var(--pm-text);
+  }
+  .pm-calc-casino-bonus .pm-explainer h3:first-child { margin-top: 0; }
+  .pm-calc-casino-bonus .pm-explainer p {
+    margin: 0 0 12px 0;
+    color: var(--pm-text);
+  }
+  .pm-calc-casino-bonus .pm-explainer dl { margin: 0 0 12px 0; }
+  .pm-calc-casino-bonus .pm-explainer dt {
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--pm-text);
+  }
+  .pm-calc-casino-bonus .pm-explainer dd {
+    margin: 2px 0 0 0;
+    color: var(--pm-muted);
+    font-size: 14px;
+  }
+  .pm-calc-casino-bonus .pm-callout {
+    margin: 14px 0;
+    padding: 14px 16px;
+    background: rgba(79, 140, 255, 0.08);
+    border-left: 3px solid var(--pm-accent);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .pm-calc-casino-bonus .pm-table-wrap {
+    overflow-x: auto;
+    margin: 0 0 12px 0;
+  }
+  .pm-calc-casino-bonus table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .pm-calc-casino-bonus th,
+  .pm-calc-casino-bonus td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--pm-border);
+  }
+  .pm-calc-casino-bonus th {
+    color: var(--pm-muted);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<div class="pm-calc-casino-bonus">
+  <h2>Casino Bonus Playthrough Calculator</h2>
+  <p class="pm-subtitle">Work out the real expected value of a deposit bonus once you factor in the wagering requirement, game contribution, and house edge.</p>
+
+  <div class="pm-grid">
+    <label for="pm-bonus-deposit">Deposit</label>
+    <input id="pm-bonus-deposit" type="text" inputmode="decimal" placeholder="100" value="100" />
+
+    <label for="pm-bonus-amount">Bonus amount</label>
+    <input id="pm-bonus-amount" type="text" inputmode="decimal" placeholder="100" value="100" />
+
+    <label for="pm-bonus-wager">Wagering multiplier</label>
+    <input id="pm-bonus-wager" type="text" inputmode="decimal" placeholder="30" value="30" />
+
+    <label for="pm-bonus-basis">Wagering basis</label>
+    <select id="pm-bonus-basis">
+      <option value="bonus" selected>Bonus only</option>
+      <option value="dpb">Deposit + bonus</option>
+    </select>
+
+    <label for="pm-bonus-edge">Game house edge %</label>
+    <input id="pm-bonus-edge" type="text" inputmode="decimal" placeholder="4" value="4" />
+
+    <label for="pm-bonus-contrib">Game contribution %</label>
+    <input id="pm-bonus-contrib" type="text" inputmode="decimal" placeholder="100" value="100" />
+  </div>
+
+  <div class="pm-results">
+    <div class="pm-result-row">
+      <span class="pm-result-label">Wagering required</span>
+      <span class="pm-result-value" data-role="wager-req">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Actual wagering to clear (after contribution)</span>
+      <span class="pm-result-value" data-role="wager-actual">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Expected loss from wagering</span>
+      <span class="pm-result-value pm-bad" data-role="exp-loss">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Net expected value (bonus − expected loss)</span>
+      <span class="pm-result-value" data-role="net-ev">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Net EV as % of deposit</span>
+      <span class="pm-result-value" data-role="net-ev-pct">—</span>
+    </div>
+    <div class="pm-result-row">
+      <span class="pm-result-label">Break-even house edge</span>
+      <span class="pm-result-value" data-role="be-edge">—</span>
+    </div>
+  </div>
+
+  <div class="pm-error" data-role="error"></div>
+
+  <p class="pm-footer">
+    Positive net EV (green) means the bonus is mathematically +EV at the assumptions you entered. Negative (red) means you'd lose more clearing the playthrough than the bonus is worth. Break-even house edge is the maximum game edge at which the bonus still pays off.
+  </p>
+
+  <div class="pm-explainer">
+    <h3>About the Casino Bonus Playthrough Calculator</h3>
+    <p>
+      Every casino welcome bonus carries a wagering requirement — a multiple of the bonus (or deposit plus bonus) that you must bet through before any winnings can be withdrawn. The bonus only has real value if you can clear the playthrough without losing more than the bonus is worth. This calculator works out whether that's possible at the assumptions you enter.
+    </p>
+    <p>
+      Enter your deposit, the bonus amount, the wagering multiplier, what counts as the wagering basis (bonus only vs deposit + bonus), the house edge of the game you'll play, and the contribution percentage that game gets toward clearing. The calculator returns the expected loss from running the required wagering, the net expected value of the bonus, and the break-even house edge — the maximum edge at which the bonus is still profitable.
+    </p>
+
+    <h3>Worked examples</h3>
+    <p>Six typical bonus scenarios with a $100 deposit:</p>
+    <div class="pm-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Bonus</th>
+            <th>Wagering</th>
+            <th>Basis</th>
+            <th>Game edge</th>
+            <th>Contribution</th>
+            <th>Net EV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>100</td><td>30×</td><td>D+B</td><td>4%</td><td>100%</td><td>−140.00</td></tr>
+          <tr><td>100</td><td>30×</td><td>Bonus only</td><td>4%</td><td>100%</td><td>−20.00</td></tr>
+          <tr><td>50</td><td>25×</td><td>Bonus only</td><td>3%</td><td>100%</td><td>+12.50</td></tr>
+          <tr><td>200</td><td>40×</td><td>Bonus only</td><td>0.5%</td><td>10%</td><td>−200.00</td></tr>
+          <tr><td>25</td><td>20×</td><td>Bonus only</td><td>3%</td><td>100%</td><td>+10.00</td></tr>
+          <tr><td>100</td><td>35×</td><td>D+B</td><td>2.5%</td><td>100%</td><td>−75.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>The wagering basis is the single biggest variable</h3>
+    <div class="pm-callout">
+      A 30× wagering requirement sounds the same to most players regardless of whether it's on the bonus alone or on deposit + bonus. It isn't. A $100 deposit with a $100 bonus and 30× bonus-only wagering means betting $3,000 through. The same offer with 30× on deposit + bonus means betting $6,000 through — double the expected loss. The difference flips many bonuses from neutral or slightly +EV to deeply −EV. Always check whether "wagering" applies to B or D+B before clicking accept.
+    </div>
+    <p>
+      The second-biggest variable is the game contribution. Most slots count 100% toward wagering, but blackjack, baccarat, and video poker often count 10-25% or are excluded entirely. A "low-house-edge clear" using blackjack at 0.5% edge sounds appealing, but if blackjack only contributes 10%, you have to bet through 10× the wagering requirement to clear it. At that point the small per-bet edge advantage is wiped out by the volume of action required.
+    </p>
+
+    <h3>Sticky vs cashable bonuses</h3>
+    <p>
+      A <strong>cashable</strong> bonus can be withdrawn after the wagering is cleared. A <strong>sticky</strong> bonus stays with the casino — you can only withdraw your <em>winnings</em>, not the bonus itself. Sticky bonuses are common in higher-roller offers and reload bonuses. Their EV calculation is different: instead of "bonus − expected loss", you're effectively running a free shot at a multiplier without keeping the principal. This calculator assumes a cashable bonus; for sticky bonuses, treat the bonus as gone the moment you accept it and only count net winnings above the deposit.
+    </p>
+
+    <h3>Glossary</h3>
+    <dl>
+      <dt>Wagering requirement (playthrough)</dt>
+      <dd>The total amount you must wager before winnings can be withdrawn. Quoted as a multiplier (e.g. "30×") of either the bonus or deposit + bonus.</dd>
+      <dt>Game contribution</dt>
+      <dd>The fraction of each bet that counts toward wagering. Slots typically 100%, table games often 10% or less, some games (live dealer, sports betting) often 0%.</dd>
+      <dt>House edge</dt>
+      <dd>The casino's expected return per unit wagered. Slots: 3-10%. Blackjack: 0.5-2%. Baccarat Banker: 1.06%. American roulette: 5.26%.</dd>
+      <dt>Net expected value</dt>
+      <dd>Bonus amount minus expected loss from clearing. Positive = the bonus is mathematically profitable on average. Negative = you'll lose more than the bonus is worth.</dd>
+      <dt>Break-even house edge</dt>
+      <dd>The maximum edge at which the bonus still pays off. Useful for picking which game to use to clear: if the calc says break-even is 1.7%, you need a game running below 1.7% house edge.</dd>
+      <dt>Cashable bonus</dt>
+      <dd>The bonus itself becomes part of your withdrawable balance after wagering is cleared.</dd>
+      <dt>Sticky / non-cashable bonus</dt>
+      <dd>The bonus is consumed in play — you can only withdraw winnings, not the bonus amount itself.</dd>
+    </dl>
+  </div>
+</div>
+
+<script type="module" src="./casino-bonus-playthrough.js"></script>
+<!--
+  ============================================================================
+  END CALC BODY
+  ============================================================================
+-->
+
+</body>
+</html>
